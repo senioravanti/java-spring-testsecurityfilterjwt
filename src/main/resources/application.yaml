@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: testspringsecurityfilterjwt
+
+  datasource:
+    url: 'jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${POSTGRES_DB}'
+
+    username: '${POSTGRES_USERNAME}'
+    password: '${POSTGRES_PASSWORD}'
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: 'classpath:db/changelog/changelog-main.yaml'
+
+
+logging.level:
+  ru.manannikov.testspringsecurityfilterjwt: DEBUG
+
+
+server:
+  port: 8001
+
+app:
+  security:
+    access-token:
+      signature:
+        algorithm: HmacSHA256
+        secret: _vxy_Bh9Lfy4UCOwY_kjZJYmiNEQpPZrg_jdm72Ve9g
+      lifetime: 15m
+    refresh-token:
+      lifetime: 1d
