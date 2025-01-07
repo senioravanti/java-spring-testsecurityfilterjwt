@@ -18,7 +18,7 @@ public class AuthenticationLogginFilter extends OncePerRequestFilter {
 
         SecurityContext securityContext = SecurityContextHolder.getContext();
         if (securityContext.getAuthentication() != null) {
-            log.info("Пользователь {} успешно прошел аутентификацию", securityContext.getAuthentication().getName());
+            logger.info("Пользователь {} успешно прошел аутентификацию", securityContext.getAuthentication().getName());
         }
 
         filterChain.doFilter(request, response);

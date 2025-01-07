@@ -23,7 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl {
     @Value("${app.security.refresh-token.lifetime}")
-    private Duration refreshTokenLifetime;
+    private final Duration refreshTokenLifetime;
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;

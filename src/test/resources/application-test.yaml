@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: testspringsecurityfilterjwt
+
+  datasource:
+    url: 'jdbc:tc:postgresql:13.16:///testdb'
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      show-sql: true
+    database-platform: 'org.hibernate.dialect.PostgreSQLDialect'
+
+  liquibase:
+    change-log: 'classpath:db/changelog/changelog-main.yaml'
+
+
+logging:
+  pattern.console: '%d{dd.MM.yyyy HH:mm:ss} [%t] %-5level %c{10} %M *** %msg%n'
+  level:
+    root: INFO
+    ru.manannikov.testspringsecurityfilterjwt: DEBUG

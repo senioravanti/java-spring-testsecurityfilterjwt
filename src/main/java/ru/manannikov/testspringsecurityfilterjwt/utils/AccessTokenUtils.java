@@ -27,7 +27,7 @@ public class AccessTokenUtils {
     private String serverPort;
 
     @Value("${app.security.access-token.lifetime}")
-    private Duration accessTokenLifetime;
+    private final Duration accessTokenLifetime;
 
     private final SecretKey hmacKey;
 
@@ -88,7 +88,7 @@ public class AccessTokenUtils {
     public boolean isAccessTokenExpired(String jwt) {
         Instant currentTime = Instant.now();
         Instant expirationTime = extractExpiration(jwt);
-        log.debug("Current time: {}; expiration time: {}", currentTime, expirationTime);
+        logger.debug("Current time: {}; expiration time: {}", currentTime, expirationTime);
         return currentTime.isAfter(expirationTime);
     }
 }

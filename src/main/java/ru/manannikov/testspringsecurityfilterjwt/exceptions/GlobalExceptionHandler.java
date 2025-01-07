@@ -32,9 +32,21 @@ public class GlobalExceptionHandler {
             problemType = new URI(String.format(PROBLEM_TYPE_FORMAT, exceptionClassName, Instant
                 .now().toString()));
         } catch (URISyntaxException ex) {
-            log.error("Cannot create problem type", ex);
+            logger.error("Cannot create problem type", ex);
         }
         return problemType;
+    }
+
+    private ProblemDetail forTypeStatusTitleAndDetail(String exceptionClassName, HttpStatus status, String title, String detail) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+
+        URI problemType = createProblemType(exceptionClassName);
+        if (problemType != null) {
+            problemDetail.setType(problemType);
+        }
+        problemDetail.setTitle(title);
+
+        return problemDetail;
     }
 
     @ExceptionHandler(value = {
@@ -46,36 +58,24 @@ public class GlobalExceptionHandler {
     })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ProblemDetail handleBadCredentialsException(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
-        problemDetail.setTitle("You are passed bad credentials");
-
-        log.error("Bad credentials: {}", ex.toString());
-        return problemDetail;
+        logger.error("Authentication failed because user submitted bad credentials: {}", ex.toString());
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "You are submitted bad credentials");
     }
 
     @ExceptionHandler(SignatureException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ProblemDetail handleSignatureException(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
-        problemDetail.setTitle("Cannot verify JWT signature");
-        problemDetail.setProperty("description", "he JWT signature is invalid");
+        logger.error("JWT signature is invalid: {}", ex.toString());
 
-        log.error("Token signature is invalid: {}", ex.toString());
-        return problemDetail;
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Cannot verify JWT signature");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ProblemDetail handleAccessDeniedException(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
-        problemDetail.setTitle("You are not authorized");
-        problemDetail.setProperty("description", "You are not authorized to access this resource");
+        logger.error("Client cannot access this resource: {}", ex.toString());
 
-        log.error("User cannot access this resource: {}", ex.toString());
-       return problemDetail;
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.FORBIDDEN, "FORBIDDEN", "You do not have authorities to access this resource");
     }
 
     @ExceptionHandler(value = {
@@ -84,12 +84,9 @@ public class GlobalExceptionHandler {
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ProblemDetail handleResourceNotFoundExceptions(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
-        problemDetail.setTitle("Resource not found");
+        logger.error("Some resource not found: {}", ex.toString());
 
-        log.error("Some resource not found: {}", ex.toString());
-        return problemDetail;
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.NOT_FOUND, "RESOURCE NOT FOUND", "Resource not found");
     }
 
     @ExceptionHandler(value = {
@@ -98,23 +95,16 @@ public class GlobalExceptionHandler {
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleRuntimeExceptions(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
-        problemDetail.setTitle("Your request contains invalid data");
+        logger.error("Client sent bad request: {}", ex.toString());
 
-        log.error("Bad request: {}", ex.toString());
-        return problemDetail;
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.BAD_REQUEST, "BAD REQUEST", "Your request contains invalid data. Please change data and try again");
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ProblemDetail handleException(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-        problemDetail.setType(createProblemType(ex.getClass().getName()));
+        logger.error("Unhandled exception: {}", ex.toString());
 
-        problemDetail.setProperty("description", "Unknown internal server error.");
-
-        log.error("Unhandled exception: {}", ex.toString());
-        return problemDetail;
+        return forTypeStatusTitleAndDetail(ex.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR", "Unknown internal server error. The server is not in a state to carry out the client’s request");
     }
 }

@@ -51,8 +51,9 @@ public class JwtFilter extends OncePerRequestFilter {
     )
         throws ServletException, IOException
     {
+        logger.info("jwt filter running");
         final String authorizationHeader = request.getHeader("Authorization");
-        log.debug("authorizationHeader: {}", authorizationHeader);
+        logger.debug("authorizationHeader: {}", authorizationHeader);
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -60,7 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         var authenticationOptional = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
-        log.debug("Security context before authentication: {}", authenticationOptional.orElse(null));
+        logger.debug("Security context before authentication: {}", authenticationOptional.orElse(null));
 
         try {
             if (authenticationOptional.isPresent()) {
@@ -68,7 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             String jwt = extractJwt(authorizationHeader);
-            log.debug("JWT token: {}", jwt);
+            logger.debug("JWT token: {}", jwt);
 
             String username = accessTokenService.extractUsername(jwt);
 
@@ -88,12 +89,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            log.debug("Security context after authentication: {}",
+            logger.debug("Security context after authentication: {}",
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal()
             );
         }
         catch (BadCredentialsException | ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException ex) {
-            log.error("JWT validation exception");
+            logger.error("JWT validation exception");
 
             handlerExceptionResolver.resolveException(request, response, null, ex);
         }

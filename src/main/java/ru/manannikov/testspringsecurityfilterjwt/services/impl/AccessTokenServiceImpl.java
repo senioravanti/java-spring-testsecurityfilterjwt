@@ -20,7 +20,7 @@ public class AccessTokenServiceImpl {
         throws UnsupportedJwtException
     {
         String username = accessTokenUtils.extractUsername(jwt);
-        log.debug("extracted username: {}", username);
+        logger.debug("extracted username: {}", username);
 
         if (username == null || username.isBlank()) {
             throw new UnsupportedJwtException("There is no mandatory claim \"sub\" in Jwt");
@@ -39,7 +39,7 @@ public class AccessTokenServiceImpl {
                 () -> new UnsupportedJwtException("В полезной нагрузке Jwt отсутствует пункт user_id")
             )
             ;
-        log.debug("userId extracted from jwt body: {}", userId);
+        logger.debug("userId extracted from jwt body: {}", userId);
 
         return userId;
     }

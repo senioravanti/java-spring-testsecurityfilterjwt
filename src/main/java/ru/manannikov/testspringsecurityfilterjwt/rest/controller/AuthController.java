@@ -36,11 +36,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    // curl -X POST -H 'Content-Type: application/json' -d '{ "username": "senioravanti", "password": "12345" }' 'http://localhost:8001/Authentication/SignIn'
     @PostMapping("/SignIn")
     public ResponseEntity<TokensResponse> createToken(
         @Valid @RequestBody AccessTokenRequest accessTokenRequest
     ) {
-        log.info("Получил запрос на аутентификацию пользователя: {}", accessTokenRequest.username());
+        logger.info("Получил запрос на аутентификацию пользователя: {}", accessTokenRequest.username());
         return ResponseEntity.ok(tokensService.createTokens(accessTokenRequest));
     }
 
@@ -48,7 +49,7 @@ public class AuthController {
     public ResponseEntity<TokensResponse> refresh(
         @RequestBody RefreshTokenRequest request
     ) {
-        log.info("Получил запрос на новую пару токенов: {}", request.refreshToken());
+        logger.info("Получил запрос на новую пару токенов: {}", request.refreshToken());
         return ResponseEntity.ok(tokensService.refreshTokens(request.refreshToken()));
     }
 
@@ -56,7 +57,7 @@ public class AuthController {
     public ResponseEntity<Claims> validate(
         @RequestParam("accessToken") @NotBlank String accessToken
     ) {
-        log.info("Получил запрос на интроспекцию токена доступа : {}", accessToken);
+        logger.info("Получил запрос на интроспекцию токена доступа : {}", accessToken);
         return ResponseEntity.ok(accessTokenService.extractAccessTokenPayload(accessToken));
     }
 }

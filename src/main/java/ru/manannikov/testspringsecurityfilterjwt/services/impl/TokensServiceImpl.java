@@ -1,7 +1,6 @@
 package ru.manannikov.testspringsecurityfilterjwt.services.impl;
 
 
-import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import ru.manannikov.testspringsecurityfilterjwt.utils.AccessTokenUtils;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.Optional;
 
 import static ru.manannikov.testspringsecurityfilterjwt.utils.Constants.USER_ID_CLAIM;
 
@@ -27,7 +25,7 @@ import static ru.manannikov.testspringsecurityfilterjwt.utils.Constants.USER_ID_
 @RequiredArgsConstructor
 public class TokensServiceImpl {
     @Value("${app.security.access-token.lifetime}")
-    private Duration accessTokenLifetime;
+    private final Duration accessTokenLifetime;
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
@@ -46,7 +44,7 @@ public class TokensServiceImpl {
 
     public TokensResponse createTokens(AccessTokenRequest accessTokenRequest) {
 
-        log.info("Приступаю к обработке запроса на аутентификацию пользователя {}", accessTokenRequest.username());
+        logger.info("Приступаю к обработке запроса на аутентификацию пользователя {}", accessTokenRequest.username());
         
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
             accessTokenRequest.username(),
